@@ -1,0 +1,58 @@
+
+name: Gerar APK Ndj-lib Reborn
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Instalar e Construir
+        run: |
+          # 1. Instala dependências e a ferramenta de assets
+          npm install
+          npm install @capacitor/assets --save-dev
+          
+          # 2. Adiciona plataforma
+          npx cap add android || true
+          
+          # 3. GERAR ÍCONES (Procura por icon.png na raiz)
+          # Se não houver icon.png, ele usa o padrão do Capacitor
+          if [ -f "icon.png" ]; then
+            npx capacitor-assets generate --android
+          fi
+
+          # 4. ATIVAR MOTOR E PERMISSÕES (AndroidManifest)
+          npx cap update
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />' $MANIFEST
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' $MANIFEST
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' $MANIFEST
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.WAKE_LOCK" />' $MANIFEST
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />' $MANIFEST
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />' $MANIFEST
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />' $MANIFEST
+          
+          # 5. Sincroniza arquivos
+          npx cap sync
+          
+          # 6. Build do APK final
+          cd android && chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Subir APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ndj-reborn-apk
+          path: android/app/build/outputs/apk/debug/*.apk
