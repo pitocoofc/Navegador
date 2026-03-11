@@ -2,18 +2,317 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NDJ Browser</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NDJ Reborn - Ultra</title>
+    <style>
+        :root {
+            --primary-blue: #3b82f6;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-heavy: rgba(0, 0, 0, 0.9);
+            --text-white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-white);
+            overflow: hidden;
+        }
+
+        /* Botão de Configurações */
+        .settings-trigger {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px;
+            border-radius: 18px;
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.2s;
+        }
+
+        .settings-trigger:active { transform: scale(0.9); }
+
+        /* Branding */
+        .branding {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-img {
+            width: 75px;
+            height: 75px;
+            border-radius: 22px;
+            margin-bottom: 15px;
+            animation: pulse 4s infinite ease-in-out;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 1; box-shadow: 0 0 40px rgba(59, 130, 246, 0.7); }
+        }
+
+        .branding h1 {
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Barra de Pesquisa */
+        .search-container {
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(25px);
+            padding: 6px 8px;
+            border-radius: 50px;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-box:focus-within {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        #url-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-btn {
+            background: var(--primary-blue);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        /* Atalhos / Recomendações */
+        .shortcuts {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .shortcut-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .shortcut-item:active { transform: scale(0.9); }
+
+        .icon-circle {
+            width: 55px;
+            height: 55px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .shortcut-item span {
+            font-size: 12px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        /* Modal de Configurações */
+        #settings-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--glass-heavy);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            padding: 40px 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .setting-card {
+            background: rgba(255,255,255,0.06);
+            padding: 20px;
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Interruptor Estilizado */
+        .switch {
+            position: relative;
+            width: 55px;
+            height: 28px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #444;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--primary-blue); }
+        input:checked + .slider:before { transform: translateX(27px); }
+    </style>
 </head>
 <body>
-    <div id="browser-ui">
-        <div class="toolbar">
-            <button id="back">◀</button>
-            <input type="text" id="url-input" placeholder="Digite a URL ou busca...">
-            <button id="go">Ir</button>
+
+    <div class="settings-trigger" onclick="toggleModal(true)">🔐</div>
+
+    <div class="branding">
+        <img src="https://cdn-icons-png.flaticon.com/512/64/64571.png" class="logo-img">
+        <h1>Ndj-lib Reborn</h1>
+        <p style="font-size: 12px; opacity: 0.6; margin-top: 5px;">Seu Navegador Seguro</p>
+    </div>
+
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" id="url-input" placeholder="O que vamos buscar hoje?" onkeydown="checkEnter(event)">
+            <button class="search-btn" onclick="navigate()">➔</button>
         </div>
+
+        <div class="shortcuts">
+            <div class="shortcut-item" onclick="quickNav('https://google.com')">
+                <div class="icon-circle">🌐</div>
+                <span>Google</span>
+            </div>
+            <div class="shortcut-item" onclick="quickNav('https://youtube.com')">
+                <div class="icon-circle">▶️</div>
+                <span>YouTube</span>
+            </div>
+            <div class="shortcut-item" onclick="quickNav('https://ndj-support.example.com')">
+                <div class="icon-circle">🛠️</div>
+                <span>Suporte</span>
+            </div>
         </div>
-    <script src="script.js"></script>
+    </div>
+
+    <div id="settings-modal">
+        <div class="modal-header">
+            <h2 style="font-weight: 300;">Configurações</h2>
+            <button onclick="toggleModal(false)" style="background:none; border:none; color:white; font-size:28px;">✕</button>
+        </div>
+        
+        <div class="setting-card">
+            <div>
+                <p style="font-size: 16px;">Bloqueio de Anúncios</p>
+                <p style="font-size: 11px; opacity: 0.5;">Navegação mais limpa e rápida</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="adblock-toggle" onchange="updateAdblock()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <script>
+        // Inicializa o estado do AdBlock
+        let adBlockEnabled = localStorage.getItem('adblock') === 'true';
+        document.getElementById('adblock-toggle').checked = adBlockEnabled;
+
+        function navigate() {
+            let val = document.getElementById('url-input').value.trim();
+            if (!val) return;
+            
+            let url = val;
+            if (!val.includes('.')) {
+                url = 'https://www.google.com/search?q=' + encodeURIComponent(val);
+            } else if (!val.startsWith('http')) {
+                url = 'https://' + val;
+            }
+            window.location.href = url;
+        }
+
+        function quickNav(url) {
+            window.location.href = url;
+        }
+
+        function toggleModal(show) {
+            document.getElementById('settings-modal').style.display = show ? 'block' : 'none';
+        }
+
+        function updateAdblock() {
+            adBlockEnabled = document.getElementById('adblock-toggle').checked;
+            localStorage.setItem('adblock', adBlockEnabled);
+            // Aqui você pode enviar um sinal para o Java via Capacitor futuramente
+            console.log("AdBlock status: " + adBlockEnabled);
+        }
+
+        function checkEnter(e) {
+            if (e.key === 'Enter') navigate();
+        }
+    </script>
 </body>
-</html>
+    </html>
+    
