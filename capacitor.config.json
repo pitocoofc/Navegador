@@ -1,6 +1,8 @@
 {
-  "appId": "eb.os.on",
-  "appName": "WebOS",
+  "appId": "com.ndj.reborn",
+  "appName": "Ndj-lib Reborn",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "server": {
+    "allowNavigation": ["*"]
+  }
 }
