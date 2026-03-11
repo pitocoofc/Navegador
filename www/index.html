@@ -21,11 +21,7 @@
         }
 
         body {
-            /* Fundo com imagem via URL */
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+            background: #000;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -35,7 +31,34 @@
             overflow: hidden;
         }
 
-        /* Botão de Configurações (Topo Direito) */
+        /* O visual do HUB (Tela Inicial) */
+        #home-hub {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10; /* Fica acima do iframe quando aberto */
+        }
+
+        /* O Navegador Real (Iframe) */
+        #browser-frame {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 80px); /* Deixa espaço para a barra inferior */
+            border: none;
+            background: #fff;
+            display: none; /* Escondido até navegar */
+            z-index: 5;
+        }
+
         .settings-trigger {
             position: absolute;
             top: 25px;
@@ -50,7 +73,6 @@
             z-index: 1000;
         }
 
-        /* Branding e Logo Pulsante */
         .branding {
             text-align: center;
             margin-bottom: 30px;
@@ -78,7 +100,6 @@
             text-transform: uppercase;
         }
 
-        /* Barra de Pesquisa e Atalhos */
         .main-container {
             width: 90%;
             max-width: 500px;
@@ -119,10 +140,7 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 18px;
-            animation: btn-pop 0.3s ease-out;
         }
-
-        @keyframes btn-pop { 0% { scale: 0.5; } 100% { scale: 1; } }
 
         .shortcuts {
             display: flex;
@@ -151,23 +169,23 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Barra de Navegação Inferior */
+        /* Barra Inferior IMORTAL */
         .bottom-nav {
             position: fixed;
-            bottom: 25px;
+            bottom: 15px;
             display: flex;
-            background: rgba(20, 20, 20, 0.8);
+            background: rgba(20, 20, 20, 0.9);
             backdrop-filter: blur(15px);
-            padding: 12px 30px;
+            padding: 12px 35px;
             border-radius: 40px;
-            gap: 40px;
+            gap: 45px;
             border: 1px solid rgba(255,255,255,0.1);
-            z-index: 1000;
+            z-index: 1100; /* Sempre no topo de tudo */
         }
 
-        .nav-item { font-size: 24px; cursor: pointer; }
+        .nav-item { font-size: 24px; cursor: pointer; transition: transform 0.2s; }
+        .nav-item:active { transform: scale(0.8); }
 
-        /* Modal de Configurações */
         #settings-modal {
             display: none;
             position: fixed;
@@ -194,7 +212,6 @@
             border-radius: 20px;
         }
 
-        /* Interruptor / Switch */
         .switch {
             position: relative;
             display: inline-block;
@@ -231,32 +248,36 @@
 
     <div class="settings-trigger" onclick="toggleModal(true)">🔐</div>
 
-    <div class="branding">
-        <img src="https://cdn-icons-png.flaticon.com/512/64/64571.png" class="logo-img">
-        <h1>Seu Navegador Seguro</h1>
-    </div>
-
-    <div class="main-container">
-        <div class="search-box">
-            <input type="text" id="url-input" placeholder="Pesquisar ou digitar URL..." onkeydown="checkEnter(event)">
-            <button class="search-btn" onclick="navigate()">➔</button>
+    <div id="home-hub">
+        <div class="branding">
+            <img src="https://cdn-icons-png.flaticon.com/512/64/64571.png" class="logo-img">
+            <h1>Seu Navegador Seguro</h1>
         </div>
 
-        <div class="shortcuts">
-            <div class="shortcut-item" onclick="quickNav('https://google.com')">
-                <div class="icon-circle">🌐</div>
-                <span style="font-size:12px; opacity:0.8;">Google</span>
+        <div class="main-container">
+            <div class="search-box">
+                <input type="text" id="url-input" placeholder="Pesquisar ou digitar URL..." onkeydown="checkEnter(event)">
+                <button class="search-btn" onclick="navigate()">➔</button>
             </div>
-            <div class="shortcut-item" onclick="quickNav('https://youtube.com')">
-                <div class="icon-circle">▶️</div>
-                <span style="font-size:12px; opacity:0.8;">YouTube</span>
-            </div>
-            <div class="shortcut-item" onclick="quickNav('https://ndj-support.example.com')">
-                <div class="icon-circle">🛠️</div>
-                <span style="font-size:12px; opacity:0.8;">Suporte</span>
+
+            <div class="shortcuts">
+                <div class="shortcut-item" onclick="quickNav('https://google.com')">
+                    <div class="icon-circle">🌐</div>
+                    <span style="font-size:12px; opacity:0.8;">Google</span>
+                </div>
+                <div class="shortcut-item" onclick="quickNav('https://youtube.com')">
+                    <div class="icon-circle">▶️</div>
+                    <span style="font-size:12px; opacity:0.8;">YouTube</span>
+                </div>
+                <div class="shortcut-item" onclick="quickNav('https://ndj-support.example.com')">
+                    <div class="icon-circle">🛠️</div>
+                    <span style="font-size:12px; opacity:0.8;">Suporte</span>
+                </div>
             </div>
         </div>
     </div>
+
+    <iframe id="browser-frame" src="about:blank"></iframe>
 
     <div class="bottom-nav">
         <div class="nav-item" onclick="goBack()">⬅️</div>
@@ -269,7 +290,6 @@
             <h2>Configurações</h2>
             <button onclick="toggleModal(false)" style="background:none; border:none; color:white; font-size:30px;">✕</button>
         </div>
-        
         <div class="setting-item">
             <span>Bloqueio de Anúncios</span>
             <label class="switch">
@@ -280,40 +300,58 @@
     </div>
 
     <script>
-        // Carrega AdBlock do Storage
+        const hub = document.getElementById('home-hub');
+        const frame = document.getElementById('browser-frame');
+        const input = document.getElementById('url-input');
+
         document.getElementById('adblock-toggle').checked = localStorage.getItem('adblock') === 'true';
 
         function navigate() {
-            let val = document.getElementById('url-input').value.trim();
+            let val = input.value.trim();
             if (!val) return;
             
-            let url = val;
-            if (!val.includes('.')) {
-                url = 'https://www.google.com/search?q=' + encodeURIComponent(val);
-            } else if (!val.startsWith('http')) {
-                url = 'https://' + val;
+            let url = val.includes('.') ? (val.startsWith('http') ? val : 'https://' + val) : 'https://www.google.com/search?q=' + encodeURIComponent(val);
+            
+            frame.src = url;
+            frame.style.display = 'block';
+            hub.style.display = 'none';
+        }
+
+        function quickNav(url) {
+            frame.src = url;
+            frame.style.display = 'block';
+            hub.style.display = 'none';
+        }
+
+        function goHome() {
+            hub.style.display = 'flex';
+            frame.style.display = 'none';
+            frame.src = 'about:blank';
+            input.value = '';
+        }
+
+        function goBack() {
+            if (frame.style.display === 'block') {
+                try {
+                    frame.contentWindow.history.back();
+                } catch(e) {
+                    console.log("Navegação entre origens restringida, use o botão home.");
+                }
             }
-            window.location.href = url;
         }
 
-        function quickNav(url) { window.location.href = url; }
-        function goHome() { window.location.href = 'index.html'; }
-        function goBack() { window.history.back(); }
         function toggleModal(show) { document.getElementById('settings-modal').style.display = show ? 'block' : 'none'; }
-        
         function checkEnter(e) { if (e.key === 'Enter') navigate(); }
-
-        function updateAdblock() {
-            localStorage.setItem('adblock', document.getElementById('adblock-toggle').checked);
-        }
+        function updateAdblock() { localStorage.setItem('adblock', document.getElementById('adblock-toggle').checked); }
 
         async function sharePage() {
-            const data = { title: 'Ndj-lib Reborn', url: window.location.href };
+            const currentUrl = frame.style.display === 'block' ? frame.src : window.location.href;
             try {
-                if (navigator.share) await navigator.share(data);
-                else { alert("Copiado: " + data.url); navigator.clipboard.writeText(data.url); }
-            } catch (err) { console.log(err); }
+                if (navigator.share) await navigator.share({ title: 'Ndj-lib Reborn', url: currentUrl });
+                else { alert("URL: " + currentUrl); }
+            } catch (err) {}
         }
     </script>
 </body>
 </html>
+
