@@ -1,0 +1,76 @@
+/* Reset básico para mobile */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #121212; /* Fundo escuro para economizar bateria */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Barra de Ferramentas (Toolbar) */
+.toolbar {
+    display: flex;
+    align-items: center;
+    background-color: #1f1f1f;
+    padding: 10px;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    z-index: 100;
+}
+
+/* Botões de navegação */
+button {
+    background: transparent;
+    border: none;
+    color: #e0e0e0;
+    font-size: 1.2rem;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+button:active {
+    background-color: #333;
+}
+
+/* Campo de URL */
+#url-input {
+    flex: 1;
+    background-color: #2c2c2c;
+    border: 1px solid #3d3d3d;
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+}
+
+#url-input:focus {
+    border-color: #007bff;
+}
+
+/* Área onde o site aparece */
+#browser-content {
+    flex: 1;
+    width: 100%;
+    border: none;
+}
+
+/* Estilo para o botão "Ir" ser destaque */
+#go {
+    background-color: #007bff;
+    color: white;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 15px;
+}
+  
