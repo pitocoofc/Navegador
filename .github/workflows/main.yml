@@ -1,6 +1,6 @@
-
 name: Gerar APK Ndj-lib Reborn
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,43 +16,50 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20' # Recomendado para versões mais novas do Capacitor
 
-      - name: Instalar e Construir
+      - name: Instalar Dependências
         run: |
-          # 1. Instala dependências e a ferramenta de assets
           npm install
-          npm install @capacitor/assets --save-dev
-          
-          # 2. Adiciona plataforma
+          npm install @capacitor/android @capacitor/core @capacitor/cli
+          # Instala ferramenta de assets apenas se necessário
+          if [ -f "icon.png" ]; then npm install @capacitor/assets; fi
+
+      - name: Construir Projeto Web
+        run: |
+          # Garante que a pasta www existe (essencial para o Capacitor)
+          mkdir -p www
+          # Se você não usa um framework (React/Vue), o Capacitor lê direto da www
+
+      - name: Configurar Android e Permissões
+        run: |
           npx cap add android || true
           
-          # 3. GERAR ÍCONES (Procura por icon.png na raiz)
-          # Se não houver icon.png, ele usa o padrão do Capacitor
+          # Gerar ícones se a imagem existir
           if [ -f "icon.png" ]; then
             npx capacitor-assets generate --android
           fi
 
-          # 4. ATIVAR MOTOR E PERMISSÕES (AndroidManifest)
-          npx cap update
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />' $MANIFEST
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' $MANIFEST
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' $MANIFEST
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.WAKE_LOCK" />' $MANIFEST
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />' $MANIFEST
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />' $MANIFEST
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />' $MANIFEST
+          # Adiciona permissões de forma segura (verifica se já existe antes de adicionar)
+          grep -q "android.permission.INTERNET" $MANIFEST || sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />' $MANIFEST
+          grep -q "android.permission.ACCESS_NETWORK_STATE" $MANIFEST || sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' $MANIFEST
           
-          # 5. Sincroniza arquivos
+          # IMPORTANTE PARA NAVEGADORES: Permitir tráfego de texto claro (http)
+          sed -i 's/android:supportsRtl="true">/android:supportsRtl="true" android:usesCleartextTraffic="true">/' $MANIFEST
+
           npx cap sync
-          
-          # 6. Build do APK final
-          cd android && chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Compilar APK (Gradle)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: ndj-reborn-apk
           path: android/app/build/outputs/apk/debug/*.apk
+          
